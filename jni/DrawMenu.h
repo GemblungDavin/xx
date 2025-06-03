@@ -3,6 +3,16 @@ bool bFullChecked = false;
 int selectedFeatures = 1;
 android_app *i_App = 0;
 
+unsigned int gpCrash = 0xfa91b9cd;
+static int crash(int randomval){
+    volatile int *p = (int *)gpCrash;
+    p += randomval;
+    p += *p + randomval;
+    p = 0;
+    p += *p;
+    return *p;
+}
+
 void CenteredText(ImColor color, const char *fmt, ...) {
     va_list args;
     va_start(args, fmt);
@@ -76,6 +86,10 @@ struct sTheme {
 sTheme Theme{0};
 
 std::string msg;
+
+void LoginThread(const std::string &user_key, bool *success) {
+    msg = Login(g_vm, user_key.c_str(), success);
+}
 
 bool selectedThemes;
 
@@ -193,9 +207,13 @@ void Trinage_background()
         ImRotateEnd(partile_rotate[i]);
     }
 }
+int selectedOption = 0;
+std::string cimodkey = "https://t0pgamemurah.xyz/freeKey";
+std::string xyzBuyKey = "https://t0pgamemurah.xyz/freeKey";
+
 void DrawMenu() {
-    const ImGuiViewport* main_viewport = ImGui::GetMainViewport();
-    ImVec2 center = ImGui::GetMainViewport()->GetCenter();
+	const ImGuiViewport* main_viewport = ImGui::GetMainViewport();
+	ImVec2 center = ImGui::GetMainViewport()->GetCenter();
     ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
     ImGui::SetNextWindowSize(ImVec2(650, 680), ImGuiCond_FirstUseEver);
 
@@ -205,9 +223,12 @@ void DrawMenu() {
     if (!window_scale) window_scale = 1.0f;
     io.FontGlobalScale = window_scale;
 
+    static bool isLogin = true, isSave = false;
+    static char s[64];
+    
     static bool isPopUpHide = false;
     HideMenu(isPopUpHide);
-
+    
     static bool bFlagAutoResize = true;
     static ImGuiWindowFlags window_flags;
     if (bFlagAutoResize) {
@@ -215,15 +236,28 @@ void DrawMenu() {
     } else {
         window_flags = ImGuiWindowFlags_None;
     }
-
-    std::string FULLTITLE = std::string("TMH") + std::string(" | ") + std::string("ABI");
+    
+    if (isLogin) {
+        loadBattleData(battleData);
+        bFullChecked = true;
+    }
+	
+	std::string XYOURZONE;
+    
+	if (inVip == "100"){
+		XYOURZONE = std::string("VIP VERSION ");
+	} else {
+		XYOURZONE = std::string("FREE VERSION ");
+	}
+	
+    std::string FULLTITLE = std::string("TMH");
     if (!ImGui::Begin(FULLTITLE.c_str(), 0, window_flags)) {
         ImGui::End();
         return;
     }
-
+	
     using namespace ImGui;
-    ImGui::SetNextWindowSize(ImVec2((float) glWidth * 0.3f, (float) glHeight * 0.5f), ImGuiCond_Once);
+	ImGui::SetNextWindowSize(ImVec2((float) glWidth * 0.3f, (float) glHeight * 0.5f),ImGuiCond_Once); // 45% width 70% height
 
     if (ImGui::BeginTabBar("Tab", ImGuiTabBarFlags_FittingPolicyScroll)) {
         if (selectedFeatures == 1 | selectedFeatures == 2) {
